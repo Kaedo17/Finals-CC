@@ -6,118 +6,129 @@
 #include <limits>
 #include "database.h" // Using the database class from previous conversion
 
+using namespace std;
+
 class ToDoApp {
 private:
-    ToDoDataBase db;
-    std::string currentInput;
+    ToDoDataBase datBase;
+     string currentInput;
 
     void displayMenu() {
-        std::cout << "\n=== TO-DO LIST ===\n";
-        std::cout << "1. View all tasks\n";
-        std::cout << "2. Add new task\n";
-        std::cout << "3. Toggle task completion\n";
-        std::cout << "4. Delete task\n";
-        std::cout << "5. Exit\n";
-        std::cout << "Choose an option: ";
+         cout << "\n+---------------------------OPTIONS--------------------------+\n";
+         cout << "[1] Add task   ";
+         cout << "[2] Toggle tasks ";
+         cout << "[3] Delete tasks    ";
+         cout << "[4] Exit   ";
+         cout << "\n+------------------------------------------------------------+\n";
+         cout << "Choose an option: ";
     }
 
     void viewTasks() {
-        const auto& tasks = db.getToDoList();
+        const auto& tasks = datBase.getToDoList();
         if (tasks.empty()) {
-            std::cout << "\nNo tasks found!\n";
+             cout << "\nNo tasks found!\n";
             return;
         }
 
-        std::cout << "\n=== YOUR TASKS ===\n";
+         cout << "\n+----------------------------TASKS---------------------------+\n";
         for (size_t i = 0; i < tasks.size(); ++i) {
             const auto& task = tasks[i];
-            std::cout << i + 1 << ". [" << (std::get<1>(task) ? "X" : " ") << "] "
-                      << std::get<0>(task) << "\n";
+             cout << i + 1 << ". [" << ( get<1>(task) ? "X" : " ") << "] "
+                      <<  get<0>(task) << "\n";
         }
+
+        
     }
 
     void addTask() {
-        std::cout << "\nEnter new task: ";
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::getline(std::cin, currentInput);
+        cout << "\n+---------------------------ADD TASKS-------------------------+\n";
+         cout << "Enter new task: ";
+         cin.ignore( numeric_limits< streamsize>::max(), '\n');
+         getline( cin, currentInput);
 
         if (!currentInput.empty()) {
-            auto tasks = db.getToDoList();
+            auto tasks = datBase.getToDoList();
             tasks.emplace_back(currentInput, false);
-            db.setToDoList(tasks);
-            db.updateDataBase();
-            std::cout << "Task added successfully!\n";
+            datBase.setToDoList(tasks);
+            datBase.updateDataBase();
+             cout << "Task added successfully!\n";
         }
     }
 
     void toggleTask() {
         viewTasks();
-        if (db.getToDoList().empty()) return;
+        if (datBase.getToDoList().empty()) return;
 
-        std::cout << "Enter task number to toggle: ";
+         cout << "Enter task number to toggle: ";
         size_t index;
-        std::cin >> index;
+         cin >> index;
 
-        if (index > 0 && index <= db.getToDoList().size()) {
-            auto tasks = db.getToDoList();
+        if (index > 0 && index <= datBase.getToDoList().size()) {
+            auto tasks = datBase.getToDoList();
             auto& task = tasks[index - 1];
-            std::get<1>(task) = !std::get<1>(task); // Toggle completion status
-            db.setToDoList(tasks);
-            db.updateDataBase();
-            std::cout << "Task updated!\n";
+             get<1>(task) = ! get<1>(task); // Toggle completion status
+            datBase.setToDoList(tasks);
+            datBase.updateDataBase();
+             cout << "Task updated!\n";
         } else {
-            std::cout << "Invalid task number!\n";
+             cout << "Invalid task number!\n";
         }
     }
 
     void deleteTask() {
         viewTasks();
-        if (db.getToDoList().empty()) return;
+        if (datBase.getToDoList().empty()) return;
 
-        std::cout << "Enter task number to delete: ";
+         cout << "Enter task number to delete: ";
         size_t index;
-        std::cin >> index;
+         cin >> index;
 
-        if (index > 0 && index <= db.getToDoList().size()) {
-            auto tasks = db.getToDoList();
+        if (index > 0 && index <= datBase.getToDoList().size()) {
+            auto tasks = datBase.getToDoList();
             tasks.erase(tasks.begin() + index - 1);
-            db.setToDoList(tasks);
-            db.updateDataBase();
-            std::cout << "Task deleted!\n";
+            datBase.setToDoList(tasks);
+            datBase.updateDataBase();
+             cout << "Task deleted!\n";
         } else {
-            std::cout << "Invalid task number!\n";
+             cout << "Invalid task number!\n";
         }
     }
 
 public:
+    void clearScreen() {
+        cout << "\033[2J\033[1;1H";
+    }
+
     void run() {
-        db.loadData(); // Load existing data or create initial data
+        datBase.loadData(); // Load existing data or create initial data
 
         int choice = 0;
-        while (choice != 5) {
+        while (choice != 4) {
+            
+            viewTasks(); // display all to do list first
             displayMenu();
-            std::cin >> choice;
+            
+             cin >> choice;
 
             switch (choice) {
                 case 1:
+                    clearScreen();
                     viewTasks();
-                    break;
-                case 2:
                     addTask();
                     break;
-                case 3:
+                case 2:
                     toggleTask();
                     break;
-                case 4:
+                case 3:
                     deleteTask();
                     break;
-                case 5:
-                    std::cout << "Goodbye!\n";
+                case 4:
+                     cout << "GoodatBaseye!\n";
                     break;
                 default:
-                    std::cout << "Invalid choice! Try again.\n";
-                    std::cin.clear();
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                     cout << "Invalid choice! Try again.\n";
+                     cin.clear();
+                     cin.ignore( numeric_limits< streamsize>::max(), '\n');
             }
         }
     }

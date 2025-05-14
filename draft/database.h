@@ -8,24 +8,26 @@
 #include <iostream>
 #include <stdexcept>
 
+using namespace std;
+
 class ToDoDataBase {
 private:
-    std::vector<std::tuple<std::string, bool>> toDoList;
-    std::string filename = "tododatabase.dat";
+     vector< tuple< string, bool>> toDoList;
+     string filename = "tododatabase.dat";
 
     // Helper function to serialize data to file
     void saveToFile() {
-        std::ofstream outFile(filename, std::ios::binary);
+         ofstream outFile(filename,  ios::binary);
         if (!outFile) {
-            throw std::runtime_error("Could not open file for writing");
+            throw  runtime_error("Could not open file for writing");
         }
 
         size_t size = toDoList.size();
         outFile.write(reinterpret_cast<const char*>(&size), sizeof(size_t));
         
         for (const auto& item : toDoList) {
-            const std::string& task = std::get<0>(item);
-            bool completed = std::get<1>(item);
+            const  string& task =  get<0>(item);
+            bool completed =  get<1>(item);
             
             size_t taskSize = task.size();
             outFile.write(reinterpret_cast<const char*>(&taskSize), sizeof(size_t));
@@ -36,7 +38,7 @@ private:
 
     // Helper function to deserialize data from file
     void loadFromFile() {
-        std::ifstream inFile(filename, std::ios::binary);
+         ifstream inFile(filename,  ios::binary);
         if (!inFile) {
             // File doesn't exist yet, use initial data
             createInitialData();
@@ -53,7 +55,7 @@ private:
             size_t taskSize;
             inFile.read(reinterpret_cast<char*>(&taskSize), sizeof(size_t));
             
-            std::string task(taskSize, '\0');
+             string task(taskSize, '\0');
             inFile.read(&task[0], taskSize);
             
             bool completed;
@@ -83,12 +85,12 @@ public:
     }
 
     // Getter for the to-do list
-    const std::vector<std::tuple<std::string, bool>>& getToDoList() const {
+    const  vector< tuple< string, bool>>& getToDoList() const {
         return toDoList;
     }
 
     // Setter for the to-do list
-    void setToDoList(const std::vector<std::tuple<std::string, bool>>& newList) {
+    void setToDoList(const  vector< tuple< string, bool>>& newList) {
         toDoList = newList;
     }
 };
