@@ -47,40 +47,44 @@ private:
     void viewTasks(bool showPriorityHeaders = true) {
         auto& tasks = datBase.getToDoList();
         if (tasks.empty()) {
-             cout << "\nNo tasks found!\n";
+            cout << "\nNo tasks found!\n";
             return;
         }
-
-         vector< tuple< string, bool, int,  time_t>> highPriority;
-         vector< tuple< string, bool, int,  time_t>> normalPriority;
-
-        for (const auto& task : tasks) {
-            if ( get<2>(task) == 1) {
-                highPriority.push_back(task);
+    
+        vector<size_t> taskIndices; // Store the actual indices of tasks
+        vector<tuple<string, bool, int, time_t>> highPriority;
+        vector<tuple<string, bool, int, time_t>> normalPriority;
+    
+        // Separate tasks by priority
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) == 1) {
+                highPriority.push_back(tasks[i]);
+                taskIndices.push_back(i);
             } else {
-                normalPriority.push_back(task);
+                normalPriority.push_back(tasks[i]);
+                taskIndices.push_back(i);
             }
         }
-
-         cout << "\n" << BOLD << GREEN << "+-----------------------TASKS-----------------------+" << RESET << "\n";
+    
+        cout << "\n" << BOLD << GREEN << "+-----------------------TASKS-----------------------+" << RESET << "\n";
+        
+        size_t displayNumber = 1;
         
         if (!highPriority.empty() && showPriorityHeaders) {
-             cout << YELLOW << "            >>> HIGH PRIORITY TASKS <<<\n" << RESET;
-            displayTaskList(highPriority);
+            cout << YELLOW << "            >>> HIGH PRIORITY TASKS <<<\n" << RESET;
+            displayNumber = displayTaskList(highPriority, displayNumber);
         }
-
+    
         if (!normalPriority.empty() && showPriorityHeaders) {
-             cout << BLUE << "\n              >>> NORMAL TASKS <<<\n" << RESET;
+            cout << BLUE << "\n              >>> NORMAL TASKS <<<\n" << RESET;
         }
-        displayTaskList(normalPriority);
+        displayTaskList(normalPriority, displayNumber);
     }
-
-    // Changed from auto to explicit type
-    void displayTaskList(const  vector< tuple< string, bool, int,  time_t>>& tasks) {
-        for (size_t i = 0; i < tasks.size(); ++i) {
-            const auto& [task, completed, priority, created] = tasks[i];
-            
-             string color;
+    
+    size_t displayTaskList(const vector<tuple<string, bool, int, time_t>>& tasks, size_t startNumber = 1) {
+        size_t currentNumber = startNumber;
+        for (const auto& [task, completed, priority, created] : tasks) {
+            string color;
             if (completed) {
                 color = STRIKE + RED;
             } else if (priority == 1) {
@@ -88,16 +92,18 @@ private:
             } else if (priority == 2) {
                 color = BLUE;
             }
-
-             tm* ptm =  localtime(&created);
+    
+            tm* ptm = localtime(&created);
             char buffer[32];
-             strftime(buffer, 32, "%Y-%m-%d %H:%M", ptm);
-
-             cout << i + 1 << ". " << color 
+            strftime(buffer, 32, "%Y-%m-%d %H:%M", ptm);
+    
+            cout << currentNumber << ". " << color 
                       << (completed ? "[X] " : "[ ] ") 
                       << left << setw(35) << task << RESET
                       << MAGENTA << "(" << buffer << ")" << RESET << "\n";
+            currentNumber++;
         }
+        return currentNumber;
     }
 
     void addTask() {
@@ -118,54 +124,116 @@ private:
     }
 
     void toggleTask() {
-        size_t index;
-         cout << "Toggle task number: ";
-         cin >> index;
-
         auto& tasks = datBase.getToDoList();
-        if (index > 0 && index <= tasks.size()) {
-            auto& task = tasks[index-1];
-             get<1>(task) = ! get<1>(task); // Toggle completion status
-            datBase.updateDataBase();
-            clearScreen();
-             cout << "Task toggled!\n";
-        } else {
-             cout << "Invalid task number!\n";
+        if (tasks.empty()) {
+            cout << "No tasks to toggle!\n";
+            return;
         }
-    }
-
-    void setPriority() {
-        size_t index;
-        int priority;
-         cout << "Task number: ";
-         cin >> index;
-         cout << "Priority (1=High, 2=Medium, 3=Low): ";
-         cin >> priority;
-
-        auto& tasks = datBase.getToDoList();
-        if (index > 0 && index <= tasks.size() && priority >= 1 && priority <= 3) {
-             get<2>(tasks[index-1]) = priority;
+    
+        // First display the tasks with their current numbering
+        viewTasks();
+    
+        size_t displayNumber;
+        cout << "Toggle task number: ";
+        cin >> displayNumber;
+    
+        // Rebuild the task order to map display numbers to actual indices
+        vector<size_t> taskIndices;
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) == 1) {
+                taskIndices.push_back(i);
+            }
+        }
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) != 1) {
+                taskIndices.push_back(i);
+            }
+        }
+    
+        if (displayNumber > 0 && displayNumber <= taskIndices.size()) {
+            size_t actualIndex = taskIndices[displayNumber - 1];
+            auto& task = tasks[actualIndex];
+            get<1>(task) = !get<1>(task); // Toggle completion status
             datBase.updateDataBase();
             clearScreen();
-             cout << "Priority updated!\n";
+            cout << "Task toggled!\n";
         } else {
-             cout << "Invalid input!\n";
+            cout << "Invalid task number!\n";
         }
     }
 
     void deleteTask() {
-        size_t index;
-         cout << "Delete task number: ";
-         cin >> index;
-
         auto& tasks = datBase.getToDoList();
-        if (index > 0 && index <= tasks.size()) {
-            tasks.erase(tasks.begin() + index - 1);
+        if (tasks.empty()) {
+            cout << "No tasks to delete!\n";
+            return;
+        }
+    
+        viewTasks();
+    
+        size_t displayNumber;
+        cout << "Delete task number: ";
+        cin >> displayNumber;
+    
+        vector<size_t> taskIndices;
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) == 1) {
+                taskIndices.push_back(i);
+            }
+        }
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) != 1) {
+                taskIndices.push_back(i);
+            }
+        }
+    
+        if (displayNumber > 0 && displayNumber <= taskIndices.size()) {
+            size_t actualIndex = taskIndices[displayNumber - 1];
+            tasks.erase(tasks.begin() + actualIndex);
             datBase.updateDataBase();
             clearScreen();
-             cout << "Task deleted!\n";
+            cout << "Task deleted!\n";
         } else {
-             cout << "Invalid task number!\n";
+            cout << "Invalid task number!\n";
+        }
+    }
+    
+    void setPriority() {
+        auto& tasks = datBase.getToDoList();
+        if (tasks.empty()) {
+            cout << "No tasks to modify!\n";
+            return;
+        }
+    
+        viewTasks();
+    
+        size_t displayNumber;
+        int priority;
+        cout << "Task number: ";
+        cin >> displayNumber;
+        cout << "Priority (1=High, 2=Medium, 3=Low): ";
+        cin >> priority;
+    
+        vector<size_t> taskIndices;
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) == 1) {
+                taskIndices.push_back(i);
+            }
+        }
+        for (size_t i = 0; i < tasks.size(); ++i) {
+            if (get<2>(tasks[i]) != 1) {
+                taskIndices.push_back(i);
+            }
+        }
+    
+        if (displayNumber > 0 && displayNumber <= taskIndices.size() && priority >= 1 && priority <= 3) {
+            size_t actualIndex = taskIndices[displayNumber - 1];
+            get<2>(tasks[actualIndex]) = priority;
+            datBase.updateDataBase();
+            clearScreen();
+            cout << "Priority updated!\n";
+        } else {
+            cout << "Invalid input!\n";
         }
     }
 
