@@ -100,30 +100,52 @@ private:
         }
         return currentNumber;
     }
-
+     
     void addTask() {
 			clearScreen();
             viewTasks();
             cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-			cout << "          				ADD TASK"; 
+			cout << "                      ADD TASK";
             cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";                       
                           
          cout << "Enter new task: ";
          cin.ignore();
          getline( cin, currentInput);
-
+	while(true){
+	
         if (!currentInput.empty()) {
             int priority;
             cout << "\n__________________________________________________________\n"; 
              cout << "\nPin this task? ([1] Yes, [2] No): ";
              cin >> priority;
-            if (priority < 1 || priority > 2) priority = 2;
-            
+            if (priority == 1 ) {priority = 1; 
             datBase.addTask(currentInput, priority);
             clearScreen();
              cout << GREEN << "Task added successfully!\n" << RESET;
+			 break;}; 
+            if (priority == 2 ) {priority = 2;
+			datBase.addTask(currentInput, priority);
+            clearScreen();
+             cout << GREEN << "Task added successfully!\n" << RESET;
+			 break;};
+            if (cin.fail() || !(priority == 1 && priority == 2) ){
+            	cin.clear();
+cin.ignore( numeric_limits< streamsize>::max(), '\n');
+clearScreen();
+cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+			cout << "                    INPUT ERROR!";  
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+viewTasks();
+cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+			cout << "                      ADD TASK"; 
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+            cout << "Enter new task: " << currentInput;
+			}
+		}
+			}
+			
         }
-    }
+    
 
     void toggleTask() {
         auto& tasks = datBase.getToDoList();
@@ -131,13 +153,13 @@ private:
             cout << "No tasks to toggle!\n";
             return;
         }
-        while(true){
-        // First display the tasks with their current numbering
+        
         clearScreen();
         viewTasks();
-        
+        while(true){
+        // First display the tasks with their current numbering
         cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
-        cout << "          				TOGGLE TASK"; 
+        cout << "                      TOGGLE TASK"; 
          cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";      
         size_t displayNumber;
         cout << "Toggle task number: ";
@@ -163,165 +185,229 @@ private:
             get<1>(task) = !get<1>(task); // Toggle completion status
             datBase.updateDataBase();
             clearScreen();
-            cout << "Task toggled!\n";
-        } else {
-            cout << "Invalid task number!\n";
+            cout << BOLD << YELLOW << "Task toggled!\n" << RESET;
+			 break;
+			 }
+        
+		else {cin.clear();
+cin.ignore( numeric_limits< streamsize>::max(), '\n');
+clearScreen();
+cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+			cout << "                    INPUT ERROR!";  
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+viewTasks();
+		}
+		}
+		if(cin.fail()) {cin.clear();
+cin.ignore( numeric_limits< streamsize>::max(), '\n');
+clearScreen();
+cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+			cout << "                    INPUT ERROR!";  
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+viewTasks();
+		}
+		 
+         
+	}          
+        
+      
         }
-        break;
-        }
-        if(cin.fail()){
-        	cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');}
-        }
+    
+        
+    
+
+void deleteTask() {
+    auto& tasks = datBase.getToDoList();
+    if (tasks.empty()) {
+        cout << "No tasks to delete!\n";
+        return;
     }
 
-    void deleteTask() {
-        auto& tasks = datBase.getToDoList();
-        if (tasks.empty()) {
-            cout << "No tasks to delete!\n";
-            return;
-        }
-while (true){        	
-    	clearScreen();
-        viewTasks();
-        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
-cout << "          				DELETE TASK"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";  	
+    clearScreen();
+    viewTasks();
+
+    while (true) {
+        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+        cout << "                      DELETE TASK";
+        cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
+        
         size_t displayNumber;
         cout << "Delete task number: ";
         cin >> displayNumber;
-		
-		if (!cin.fail()) {
-		while(true) {
-    	clearScreen();
-        viewTasks();
-        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
-cout << "          				DELETE TASK";
-cout << "					   [1] Yes 		[2] No\n"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";      
-        size_t confirmNumber;
-        cout << "Confirm Delete? : ";
-        cin >> confirmNumber;
-		
-		if (confirmNumber == 1) {
- 	 	         vector<size_t> taskIndices;
-        for (size_t i = 0; i < tasks.size(); ++i) {
-            if (get<2>(tasks[i]) == 1) {
-                taskIndices.push_back(i);
-            }
-        }
-        for (size_t i = 0; i < tasks.size(); ++i) {
-            if (get<2>(tasks[i]) != 1) {
-                taskIndices.push_back(i);
-            }
-        }
-    
-        if (displayNumber > 0 && displayNumber <= taskIndices.size()) {
-            size_t actualIndex = taskIndices[displayNumber - 1];
-            tasks.erase(tasks.begin() + actualIndex);
-            datBase.updateDataBase();
-            clearScreen();
-            cout << "Task deleted!\n";
-        break;
-        } else {
-            cout << "Invalid task number!\n";
-        break;
-        }
-        break;
-		  		                				                }
-		 if (confirmNumber == 0) {
-			cout <<"Deletion Cancelled\n";	
-			break;	 			                				                
-		 			                				                }
-		 if (cin.fail()) {
-		 	cout << "Input Error";		                				                }		 			                				                 		                				                
-						                				                
-		                }; 
-       break;  }
-  else if (cin.fail()){
-                     cout << RED << "Invalid choice!\n" << RESET;
-                     cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');
-                     }
-		            
-    }
-    }
-    void setPriority() {
+        
+        
 
-                auto& tasks = datBase.getToDoList();
-        if (tasks.empty()) {
-            cout << "No tasks to modify!\n";
-            return;
-        }
-        while(true){
         clearScreen();
         viewTasks();
-         cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-         cout << "                      PIN/UNPIN TASKS"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";       
-        size_t displayNumber;
-        int priority;
-        cout << "Task number: ";
-        cin >> displayNumber;
-        if(!cin.fail()){
-        while(true){
-        cout << "\n__________________________________________________________\n"; 	
-        cout << "Priority ([1] Pin, [2] Unpin): ";
-        cin >> priority;
-         if(!cin.fail()){
-        vector<size_t> taskIndices;
-        for (size_t i = 0; i < tasks.size(); ++i) {
-            if (get<2>(tasks[i]) == 1) {
-                taskIndices.push_back(i);
-            }
-        }
-        for (size_t i = 0; i < tasks.size(); ++i) {
-            if (get<2>(tasks[i]) != 1) {
-                taskIndices.push_back(i);
-            }
-        }
-    
-        if (displayNumber > 0 && displayNumber <= taskIndices.size() && priority >= 1 && priority <= 3) {
-            size_t actualIndex = taskIndices[displayNumber - 1];
-            get<2>(tasks[actualIndex]) = priority;
-            datBase.updateDataBase();
-            clearScreen();
-            cout << "Priority updated!\n";
-        } else {
-            cout << "Invalid input!\n";
-        }
-        break;
-         }
-         if(cin.fail()){
-        	cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');}
-                     clearScreen();
-                     viewTasks();
+		if(!cin.fail()){
+			
+			    vector<size_t> taskIndices;
+                for (size_t i = 0; i < tasks.size(); ++i) {
+                    if (get<2>(tasks[i]) == 1) {
+                        taskIndices.push_back(i);
+                    }
+                }
+                for (size_t i = 0; i < tasks.size(); ++i) {
+                    if (get<2>(tasks[i]) != 1) {
+                        taskIndices.push_back(i);
+                    }
+                }
+
+                if (displayNumber > 0 && displayNumber <= taskIndices.size()) {
+        while (true) {
             cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-            cout << "          	            SET PRIORITY"; 
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";       
-            cout << "Task number: ";
-            cout << displayNumber;
-         
-                      
-        
-        }
-        break;
-        }
-        if(cin.fail()){
-        	cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');}
-                     
+            cout << "                      DELETE TASK";
+            cout << "\n                 [1] Yes        [2] No";
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
+
+            size_t confirmNumber;
+            cout << "Confirm Delete? : ";
+            cin >> confirmNumber;
+
+            if (cin.fail() || confirmNumber != 1 && confirmNumber != 2 ) {
+                cin.clear();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                clearScreen();
+                cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+                cout << "                    INPUT ERROR!";
+                cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
+                viewTasks();
+                continue;  // Ask for confirmation again
+            }
+
+            if (confirmNumber == 1) {
+                vector<size_t> taskIndices;
+                for (size_t i = 0; i < tasks.size(); ++i) {
+                    if (get<2>(tasks[i]) == 1) {
+                        taskIndices.push_back(i);
+                    }
+                }
+                for (size_t i = 0; i < tasks.size(); ++i) {
+                    if (get<2>(tasks[i]) != 1) {
+                        taskIndices.push_back(i);
+                    }
+                }
+
+                if (displayNumber > 0 && displayNumber <= taskIndices.size()) {
+                    size_t actualIndex = taskIndices[displayNumber - 1];
+                    tasks.erase(tasks.begin() + actualIndex);
+                    datBase.updateDataBase();
+                    clearScreen();
+                    cout << BOLD << RED << "Task deleted!\n" << RESET;
+                } else {
+                    cout << BOLD << RED << "Invalid task number!\n" << RESET;
+                }
+                return;  // Done, exit function
+
+            } else if (confirmNumber == 2) {
+            	clearScreen();
+                cout << "Deletion Cancelled\n";
+                return;  // Exit function without deleting
+
+            } else {
+                cout << "Please enter 1 (Yes) or 2 (No).\n";
+                // Loop again for valid input
+            }
         }
     }
+    }
+        if (cin.fail()) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            clearScreen();
+            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+            cout << "                    INPUT ERROR!";
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
+            viewTasks();
+            continue;  // Prompt again
+        }
+        else {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            clearScreen();
+            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+            cout << "                    INPUT ERROR!";
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
+            viewTasks();
+            continue;  // Prompt again
+    }
+}
+}
+    void setPriority() {
+ auto& tasks = datBase.getToDoList();
+    if (tasks.empty()) {
+        cout << "No tasks to modify!\n";
+        return;
+    }
+
+    clearScreen();
+    viewTasks();
+    while(true){
+        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+        cout << "               	TOGGLE PIN/UNPIN TASK"; 
+        cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";       
+	
+		size_t displayNumber;
+        cout << "Task number: ";
+        cin >> displayNumber;
+
+        if(!cin.fail()){
+            // Rebuild the task order to map display numbers to actual indices
+            vector<size_t> taskIndices;
+            for (size_t i = 0; i < tasks.size(); ++i) {
+                if (get<2>(tasks[i]) == 1) {
+                    taskIndices.push_back(i);
+                }
+            }
+            for (size_t i = 0; i < tasks.size(); ++i) {
+                if (get<2>(tasks[i]) != 1) {
+                    taskIndices.push_back(i);
+                }
+            }
+
+            if (displayNumber > 0 && displayNumber <= taskIndices.size()) {
+                size_t actualIndex = taskIndices[displayNumber - 1];
+                auto& task = tasks[actualIndex];
+                get<2>(task) = (get<2>(task) == 1) ? 2 : 1; // Toggle pin state: 1 => 2, 2 => 1
+                datBase.updateDataBase();
+                clearScreen();
+                cout << BOLD << YELLOW << "Task pin state toggled!\n" << RESET;
+            break;
+			} else {
+            cin.clear();
+            cin.ignore( numeric_limits< streamsize>::max(), '\n');
+            clearScreen();
+            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+            cout << "                    INPUT ERROR!";  
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+            viewTasks();
+        }
+                
+            }
+            if(cin.fail()) {cin.clear();
+cin.ignore( numeric_limits< streamsize>::max(), '\n');
+clearScreen();
+cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+			cout << "                    INPUT ERROR!";  
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+viewTasks();
+		}
+            
+        }
+
+        
+        }
+    
 
     void sortTasks() {
         int choice;
-        do {
+        
             clearScreen();
-            viewTasks(false);
-            displaySortMenu();
-             cin >> choice;
+            viewTasks();
+        do {
+		    displaySortMenu();
+        
+		     cin >> choice;
 
             switch (choice) {
                 case 1:
@@ -337,39 +423,118 @@ cout << "					   [1] Yes 		[2] No\n";
                     viewTasks();
                     break;
                 case 3:
+                	
                     break;
+                    
+                case 4:
+                	clearScreen();
+					break;    
                 default:
-                     cout << RED << "Invalid option!\n" << RESET;
+                     cin.clear();
+            cin.ignore( numeric_limits< streamsize>::max(), '\n');
+            clearScreen();
+            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+            cout << "                    INPUT ERROR!";  
+            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
+            viewTasks();
             }
         } while (choice != 4);
     }
+    
+    void mainPage(){
+string enterKey;
+cout <<  "+----------------------------------------------------+\n";
+    cout <<BOLD << GREEN << R"(       _________ _______    ______   _______ 
+       \__   __/(  ___  )  (  __  \ (  ___  )
+   	  ) (   | (   ) |  | (  \  )| (   ) |
+   	  | |   | |   | |  | |   ) || |   | |
+   	  | |   | |   | |  | |   | || |   | |
+   	  | |   | |   | |  | |   ) || |   | |
+   	  | |   | (___) |  | (__/  )| (___) |
+   	  )_(   (_______)  (______/ (_______)
+                                      
+  	   _       _________ _______ _________
+  	  ( \      \__   __/(  ____ \\__   __/
+   	  | (         ) (   | (    \/   ) (   
+   	  | |         | |   | (_____    | |   
+   	  | |         | |   (_____  )   | |   
+   	  | |         | |         ) |   | |   
+   	  | (____/\___) (___/\____) |   | |   
+   	  (_______/\_______/\_______)   )_(   
+                                      
+)" << RESET;
+cout << "______________________________________________________\n";
+cout << BOLD << YELLOW << "       Stay focused. Stay organized. Stay in control.\n" << RESET;
+cout << R"(
+This to-do list app is more than just a task manager, 
+it's your daily partner in productivity. Whether it's 
+managing school projects, planning your day, or 
+tracking personal goals, this app helps you stay on 
+top of everything. Add tasks, set priorities, mark 
+them done, and make progress one step at a time.)";
+cout <<  "\n+----------------------------------------------------+\n";
+cout << "Enter any key to continue. ";
+cin >> enterKey;
+	
+}
 
 public:
     void run() {
         datBase.loadData();
         int choice = 0;
-
-        while (choice != 6) {
+		mainPage();
+        
             clearScreen();
             viewTasks();
+            while (choice != 6) {
             displayMainMenu();
              cin >> choice;
 
             switch (choice) {
-                case 1: addTask(); break;
-                case 2: toggleTask(); break;
-                case 3: setPriority(); break;
-                case 4: deleteTask(); break;
-                case 5: sortTasks(); break;
-                case 6: clearScreen();  cout << GREEN << "Goodbye!\n" << RESET; break;
+                case 1: addTask(); viewTasks(); break ;
+                case 2: toggleTask(); viewTasks(); break;
+                case 3: setPriority(); viewTasks(); break;
+                case 4: deleteTask();viewTasks();  break;
+                case 5: sortTasks(); viewTasks();  break;
+                case 6: clearScreen();  cout <<  "+----------------------------------------------------+\n";
+    cout <<BOLD << GREEN << R"(       _________ _______    ______   _______ 
+       \__   __/(  ___  )  (  __  \ (  ___  )
+   	  ) (   | (   ) |  | (  \  )| (   ) |
+   	  | |   | |   | |  | |   ) || |   | |
+   	  | |   | |   | |  | |   | || |   | |
+   	  | |   | |   | |  | |   ) || |   | |
+   	  | |   | (___) |  | (__/  )| (___) |
+   	  )_(   (_______)  (______/ (_______)
+                                      
+  	   _       _________ _______ _________
+  	  ( \      \__   __/(  ____ \\__   __/
+   	  | (         ) (   | (    \/   ) (   
+   	  | |         | |   | (_____    | |   
+   	  | |         | |   (_____  )   | |   
+   	  | |         | |         ) |   | |   
+   	  | (____/\___) (___/\____) |   | |   
+   	  (_______/\_______/\_______)   )_(   
+                                      
+)" << RESET;
+cout << "______________________________________________________\n";
+cout << BOLD << YELLOW << "       Stay focused. Stay organized. Stay in control.\n" << RESET;
+cout << BOLD << GREEN << "                        Good Bye!!" << RESET;
+cout << BOLD << MAGENTA << "\n              Asoy - Jainar - Labrador - Tortuya" << RESET;
+cout <<  "\n+----------------------------------------------------+\n"; break;
                 default:
-                     cout << RED << "Invalid choice!\n" << RESET;
                      cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                clearScreen();
+                cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
+                cout << "                    INPUT ERROR!";
+                cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
+                viewTasks();
             }
         }
     }
 };
+
+ 
 
 int main() {
     ToDoApp app;
