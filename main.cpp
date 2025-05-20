@@ -38,8 +38,8 @@ private:
 
     void displaySortMenu() {
          cout << "\n" << BOLD << MAGENTA << "+-----------------------SORT BY-----------------------+" << RESET << "\n";
-         cout << "[1] Priority (High to Low)  [2] Alphabetical (A-Z)\n";
-         cout << "[3] Creation Date (Newest)  [4] Back to Main Menu\n";
+         cout << "[1] Alphabetical (A-Z)  [2] Creation Date (Newest)\n";
+         cout << "[3] Back to Main Menu\n";
          cout << BOLD << MAGENTA << "+----------------------------------------------------+" << RESET << "\n";
          cout << "Choose sort option: ";
     }
@@ -106,13 +106,17 @@ private:
             viewTasks();
             cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
 			cout << "                      ADD TASK";
+			cout << "\n               [000] Return to Menu";
             cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";                       
                           
          cout << "Enter new task: ";
          cin.ignore();
          getline( cin, currentInput);
 	while(true){
-	
+		if (currentInput == "000"){
+			clearScreen();
+			break;
+		}
         if (!currentInput.empty()) {
             int priority;
             cout << "\n__________________________________________________________\n"; 
@@ -132,10 +136,11 @@ private:
             	cin.clear();
 cin.ignore( numeric_limits< streamsize>::max(), '\n');
 clearScreen();
-cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-			cout << "                    INPUT ERROR!";  
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
 viewTasks();
+cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+			cout << BOLD << RED << "                    INPUT ERROR!" << RESET; 
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";     
+
 cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
 			cout << "                      ADD TASK"; 
             cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
@@ -160,11 +165,15 @@ cout << BOLD << GREEN << "+---------------------------------------------------+"
         // First display the tasks with their current numbering
         cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
         cout << "                      TOGGLE TASK"; 
+        cout << "\n               [000] Return to Menu";
          cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";      
         size_t displayNumber;
         cout << "Toggle task number: ";
         cin >> displayNumber;
-        
+        if (displayNumber == 000){
+        	clearScreen();
+        	break;   
+		}
         if (!cin.fail()){
         // Rebuild the task order to map display numbers to actual indices
         vector<size_t> taskIndices;
@@ -192,19 +201,20 @@ cout << BOLD << GREEN << "+---------------------------------------------------+"
 		else {cin.clear();
 cin.ignore( numeric_limits< streamsize>::max(), '\n');
 clearScreen();
-cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-			cout << "                    INPUT ERROR!";  
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
 viewTasks();
+cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+			cout << BOLD << RED << "                    INPUT ERROR!" << RESET;  
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";     
+
 		}
 		}
 		if(cin.fail()) {cin.clear();
 cin.ignore( numeric_limits< streamsize>::max(), '\n');
 clearScreen();
-cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-			cout << "                    INPUT ERROR!";  
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
 viewTasks();
+cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+			cout << BOLD << RED << "                    INPUT ERROR!" << RESET;
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";     
 		}
 		 
          
@@ -229,13 +239,17 @@ void deleteTask() {
     while (true) {
         cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
         cout << "                      DELETE TASK";
+        cout << "\n               [000] Return to Menu";
         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
         
         size_t displayNumber;
         cout << "Delete task number: ";
         cin >> displayNumber;
         
-        
+        if (displayNumber == 000){
+        	clearScreen();
+        	break;
+		}
 
         clearScreen();
         viewTasks();
@@ -268,10 +282,11 @@ void deleteTask() {
                 cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 clearScreen();
-                cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-                cout << "                    INPUT ERROR!";
-                cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
                 viewTasks();
+                cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+cout << BOLD << RED << "                    INPUT ERROR!" << RESET;
+                cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";
+                
                 continue;  // Ask for confirmation again
             }
 
@@ -315,20 +330,20 @@ void deleteTask() {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             clearScreen();
-            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-            cout << "                    INPUT ERROR!";
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
             viewTasks();
+            cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+            cout << BOLD << RED << "                    INPUT ERROR!" << RESET;
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";
             continue;  // Prompt again
         }
         else {
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
             clearScreen();
-            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-            cout << "                    INPUT ERROR!";
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
             viewTasks();
+            cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+            cout << BOLD << RED << "                    INPUT ERROR!" << RESET;
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";
             continue;  // Prompt again
     }
 }
@@ -377,20 +392,21 @@ void deleteTask() {
             cin.clear();
             cin.ignore( numeric_limits< streamsize>::max(), '\n');
             clearScreen();
-            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-            cout << "                    INPUT ERROR!";  
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
             viewTasks();
+            cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+            cout << BOLD << RED << "                    INPUT ERROR!" << RESET; 
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";     
         }
                 
             }
             if(cin.fail()) {cin.clear();
 cin.ignore( numeric_limits< streamsize>::max(), '\n');
 clearScreen();
-cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-			cout << "                    INPUT ERROR!";  
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
-viewTasks();
+			viewTasks();
+			cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+			cout << BOLD << RED << "                    INPUT ERROR!" << RESET; 
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";     
+
 		}
             
         }
@@ -423,22 +439,18 @@ viewTasks();
                     viewTasks();
                     break;
                 case 3:
-                	
-                    break;
-                    
-                case 4:
                 	clearScreen();
-					break;    
+                    break;   
                 default:
                      cin.clear();
             cin.ignore( numeric_limits< streamsize>::max(), '\n');
             clearScreen();
-            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-            cout << "                    INPUT ERROR!";  
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";     
             viewTasks();
+            cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+            cout << BOLD << RED << "                    INPUT ERROR!" << RESET;
+            cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";     
             }
-        } while (choice != 4);
+        } while (choice != 3);
     }
     
     void mainPage(){
@@ -488,6 +500,7 @@ public:
             viewTasks();
             while (choice != 6) {
             displayMainMenu();
+            
              cin >> choice;
 
             switch (choice) {
@@ -525,10 +538,11 @@ cout <<  "\n+----------------------------------------------------+\n"; break;
                      cin.clear();
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 clearScreen();
-                cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-                cout << "                    INPUT ERROR!";
-                cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";
                 viewTasks();
+                cout << BOLD << RED << "+---------------------------------------------------+" << RESET << "\n";
+                cout << BOLD << RED << "                    INPUT ERROR!" << RESET;
+                cout << BOLD << RED << "\n+---------------------------------------------------+" << RESET << "\n";
+                
             }
         }
     }

@@ -66,11 +66,20 @@ public:
     }
 
     void sortAlphabetically() {
-         sort(toDoList.begin(), toDoList.end(),
-            [](const auto& a, const auto& b) {
-                return  get<0>(a) <  get<0>(b);
-            });
-    }
+    sort(toDoList.begin(), toDoList.end(),
+        [](const auto& a, const auto& b) {
+            const string& strA = get<0>(a);
+            const string& strB = get<0>(b);
+            
+            // Compare character by character case-insensitively
+            return lexicographical_compare(
+                strA.begin(), strA.end(),
+                strB.begin(), strB.end(),
+                [](char c1, char c2) {
+                    return tolower(c1) < tolower(c2);
+                });
+        });
+}
 
     void sortByCreationDate() {
          sort(toDoList.begin(), toDoList.end(),
