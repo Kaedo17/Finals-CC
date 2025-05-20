@@ -30,7 +30,7 @@ private:
 
     void displayMainMenu() {
          cout << "\n" << BOLD << BLUE << "+-----------------------MAIN MENU-----------------------+" << RESET << "\n";
-         cout << "[1] Add task      [2] Toggle complete  [3] Pin/Unpin Task\n";
+         cout << "[1] Add task      [2] Toggle complete  [3] Set priority\n";
          cout << "[4] Delete task  [5] Sort tasks      [6] Exit\n";
          cout << BOLD << BLUE << "+----------------------------------------------------+" << RESET << "\n";
          cout << "Choose an option: ";
@@ -71,12 +71,12 @@ private:
         size_t displayNumber = 1;
         
         if (!highPriority.empty() && showPriorityHeaders) {
-            cout << YELLOW << "                 >>> PINNED TASKS <<<\n" << RESET;
+            cout << YELLOW << "            >>> HIGH PRIORITY TASKS <<<\n" << RESET;
             displayNumber = displayTaskList(highPriority, displayNumber);
         }
     
         if (!normalPriority.empty() && showPriorityHeaders) {
-            cout << "\n                     >>> TASKS <<<\n";
+            cout << BLUE << "\n              >>> NORMAL TASKS <<<\n" << RESET;
         }
         displayTaskList(normalPriority, displayNumber);
     }
@@ -86,8 +86,13 @@ private:
         for (const auto& [task, completed, priority, created] : tasks) {
             string color;
             if (completed) {
-                color = STRIKE + GREEN;
-}    
+                color = STRIKE + RED;
+            } else if (priority == 1) {
+                color = YELLOW;
+            } else if (priority == 2) {
+                color = BLUE;
+            }
+    
             tm* ptm = localtime(&created);
             char buffer[32];
             strftime(buffer, 32, "%Y-%m-%d %H:%M", ptm);
@@ -102,20 +107,13 @@ private:
     }
 
     void addTask() {
-			clearScreen();
-            viewTasks();
-            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-			cout << "          				ADD TASK"; 
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";                       
-                          
-         cout << "Enter new task: ";
+         cout << "\nEnter new task: ";
          cin.ignore();
          getline( cin, currentInput);
 
         if (!currentInput.empty()) {
             int priority;
-            cout << "\n__________________________________________________________\n"; 
-             cout << "\nPin this task? ([1] Yes, [2] No): ";
+             cout << "Set priority (1=High, 2=Low): ";
              cin >> priority;
             if (priority < 1 || priority > 2) priority = 2;
             
@@ -131,19 +129,14 @@ private:
             cout << "No tasks to toggle!\n";
             return;
         }
-        while(true){
+    
         // First display the tasks with their current numbering
-        clearScreen();
         viewTasks();
-        
-        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
-        cout << "          				TOGGLE TASK"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";      
+    
         size_t displayNumber;
         cout << "Toggle task number: ";
         cin >> displayNumber;
-        
-        if (!cin.fail()){
+    
         // Rebuild the task order to map display numbers to actual indices
         vector<size_t> taskIndices;
         for (size_t i = 0; i < tasks.size(); ++i) {
@@ -167,12 +160,6 @@ private:
         } else {
             cout << "Invalid task number!\n";
         }
-        break;
-        }
-        if(cin.fail()){
-        	cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');}
-        }
     }
 
     void deleteTask() {
@@ -181,30 +168,14 @@ private:
             cout << "No tasks to delete!\n";
             return;
         }
-while (true){        	
-    	clearScreen();
+    
         viewTasks();
-        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
-cout << "          				DELETE TASK"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";  	
+    
         size_t displayNumber;
         cout << "Delete task number: ";
         cin >> displayNumber;
-		
-		if (!cin.fail()) {
-		while(true) {
-    	clearScreen();
-        viewTasks();
-        cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";    
-cout << "          				DELETE TASK";
-cout << "					   [1] Yes 		[2] No\n"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";      
-        size_t confirmNumber;
-        cout << "Confirm Delete? : ";
-        cin >> confirmNumber;
-		
-		if (confirmNumber == 1) {
- 	 	         vector<size_t> taskIndices;
+    
+        vector<size_t> taskIndices;
         for (size_t i = 0; i < tasks.size(); ++i) {
             if (get<2>(tasks[i]) == 1) {
                 taskIndices.push_back(i);
@@ -222,53 +193,27 @@ cout << "					   [1] Yes 		[2] No\n";
             datBase.updateDataBase();
             clearScreen();
             cout << "Task deleted!\n";
-        break;
         } else {
             cout << "Invalid task number!\n";
-        break;
         }
-        break;
-		  		                				                }
-		 if (confirmNumber == 0) {
-			cout <<"Deletion Cancelled\n";	
-			break;	 			                				                
-		 			                				                }
-		 if (cin.fail()) {
-		 	cout << "Input Error";		                				                }		 			                				                 		                				                
-						                				                
-		                }; 
-       break;  }
-  else if (cin.fail()){
-                     cout << RED << "Invalid choice!\n" << RESET;
-                     cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');
-                     }
-		            
     }
-    }
+    
     void setPriority() {
-
-                auto& tasks = datBase.getToDoList();
+        auto& tasks = datBase.getToDoList();
         if (tasks.empty()) {
             cout << "No tasks to modify!\n";
             return;
         }
-        while(true){
-        clearScreen();
+    
         viewTasks();
-         cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-         cout << "                      PIN/UNPIN TASKS"; 
-         cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";       
+    
         size_t displayNumber;
         int priority;
         cout << "Task number: ";
         cin >> displayNumber;
-        if(!cin.fail()){
-        while(true){
-        cout << "\n__________________________________________________________\n"; 	
-        cout << "Priority ([1] Pin, [2] Unpin): ";
+        cout << "Priority (1=High, 2=Medium, 3=Low): ";
         cin >> priority;
-         if(!cin.fail()){
+    
         vector<size_t> taskIndices;
         for (size_t i = 0; i < tasks.size(); ++i) {
             if (get<2>(tasks[i]) == 1) {
@@ -289,29 +234,6 @@ cout << "					   [1] Yes 		[2] No\n";
             cout << "Priority updated!\n";
         } else {
             cout << "Invalid input!\n";
-        }
-        break;
-         }
-         if(cin.fail()){
-        	cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');}
-                     clearScreen();
-                     viewTasks();
-            cout << BOLD << GREEN << "+---------------------------------------------------+" << RESET << "\n";
-            cout << "          	            SET PRIORITY"; 
-            cout << BOLD << GREEN << "\n+---------------------------------------------------+" << RESET << "\n";       
-            cout << "Task number: ";
-            cout << displayNumber;
-         
-                      
-        
-        }
-        break;
-        }
-        if(cin.fail()){
-        	cin.clear();
-                     cin.ignore( numeric_limits< streamsize>::max(), '\n');}
-                     
         }
     }
 
